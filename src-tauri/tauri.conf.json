@@ -21,7 +21,7 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tauri.dev",
+      "identifier": "cn.elysianrealm.disk-visual-rs",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
@@ -36,6 +36,7 @@
     "windows": [
       {
         "fullscreen": false,
+        "maximized": true,
         "resizable": true,
         "title": "disk-visual-rs",
         "width": 800,
