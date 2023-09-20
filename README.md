@@ -38,6 +38,9 @@ Disk Visual RS是一个简易的磁盘可视化工具，它使用Rust、Vue、Ta
       ```
       yarn tauri build
       ```
+## 效果
+![Alt text](image-1.png)
+![Alt text](image.png)
 
 ## 反馈与支持
 如果您遇到任何问题或有任何建议，请在我们的[GitHub Issues](https://gitee.com/yang_zi_chun/disk-visual-rs/issues)页面留言。
