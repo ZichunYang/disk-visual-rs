@@ -7,6 +7,8 @@ use std::thread;
 use lazy_static::lazy_static;
 use serde::Serialize;
 
+use crate::core::system::{get_current_os, OperatingSystem};
+
 lazy_static! {
     static ref ROOT_NODE: Arc<RwLock<FileNode>> = Arc::new(RwLock::new(FileNode::empty()));
     static ref SCANNING: AtomicBool = AtomicBool::new(false);
@@ -62,6 +64,18 @@ fn explore_directory(dir: &str, current_node: Arc<RwLock<FileNode>>, depth: usiz
     if SHOULD_STOP.load(Ordering::SeqCst) {
         return 0;
     }
+    if dir.starts_with("/proc") && get_current_os() == OperatingSystem::Linux {
+        let proc_path = std::path::Path::new("/proc").canonicalize();
+
+        if let Ok(proc_path) = proc_path {
+            if let Ok(dir_path) = std::path::Path::new(dir).canonicalize() {
+                if dir_path.starts_with(proc_path) {
+                    return 0;
+                }
+            }
+        }
+    }
+
     let mut total_size = 0u64;
     if let Ok(entries) = std::fs::read_dir(dir) {
         for entry in entries {
