@@ -11,7 +11,7 @@ Disk Visual RS is a simple disk visualization tool developed using Rust, Vue, Ta
 
 ### Installation
 
-- Download the latest version of Disk Visual RS from the [Release](https://gitee.com/yang_zi_chun/disk-visual-rs/releases) page.
+- Download the latest version of Disk Visual RS from the [Release](https://github.com/ZichunYang/disk-visual-rs/releases) page.
 
 or
 
@@ -38,7 +38,7 @@ or
 ![Alt text](img.png)
 
 ## Feedback and Support
-If you encounter any issues or have any suggestions, please leave a message on our [GitHub Issues](https://gitee.com/yang_zi_chun/disk-visual-rs/issues) page.
+If you encounter any issues or have any suggestions, please leave a message on our [GitHub Issues](https://github.com/ZichunYang/disk-visual-rs/issues) page.
 
 ## License
 This project is licensed under the MIT License.
