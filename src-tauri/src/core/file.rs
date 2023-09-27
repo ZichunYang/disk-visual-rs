@@ -122,7 +122,8 @@ fn explore_directory(dir: &str, current_node: Arc<RwLock<FileNode>>, depth: usiz
 }
 
 #[tauri::command]
-pub fn start_scan_folder(path: String) -> Result<(), String> {
+pub async fn start_scan_folder(path: String) -> Result<(), String> {
+    stop_scan_folder_and_clear().await;
     *WATCH_PATH.lock().unwrap() = Some(path.clone());
     SHOULD_STOP.store(false, Ordering::SeqCst);
     thread::spawn(move || {
@@ -152,8 +153,16 @@ pub fn get_recommend_folders(current_path: String) -> Result<Vec<String>, String
     let dir_to_read = if path.exists() {
         path.to_path_buf()
     } else {
-        path.parent().unwrap_or(path).to_path_buf()
+        if let Some(parent) = path.parent() {
+            parent.to_path_buf()
+        } else {
+            path.to_path_buf()
+        }
     };
+    let dir_to_read = dir_to_read.canonicalize().map_err(|e| format!("Error canonicalizing path: {}", e))?;
+    if !dir_to_read.exists() {
+        return Err(format!("Path does not exist: {}", dir_to_read.to_str().unwrap()));
+    }
 
     let entries = std::fs::read_dir(&dir_to_read).or_else(|_| {
         std::fs::read_dir(dir_to_read.parent().unwrap_or(&dir_to_read))

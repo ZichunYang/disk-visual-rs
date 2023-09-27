@@ -1,10 +1,12 @@
 <script setup>
-import { ClearOutlined, CopyOutlined, DeleteOutlined, FolderOpenOutlined } from "@ant-design/icons-vue";
+import { FolderOpenOutlined, CopyOutlined, DeleteOutlined, RedoOutlined } from "@ant-design/icons-vue";
 </script>
 <template>
-    <a-modal v-model:open="open" :closable="closable" :footer="null" :width="modalWidth" @ok="(e) => { console.log(e) }">
+    <a-modal v-model:open="open" :closable="closable" :maskClosable="false" :keyboard="false" :footer="null"
+        :width="modalWidth" @ok="(e) => { console.log(e) }">
         <a-input id="targetFolder" :bordered="false" placeholder="目标文件夹" size="large" v-model:value="value"
-            @change="getRecommendFolders" @pressEnter="startScanFolder" />
+            @change="getRecommendFolders" @pressEnter="startScanFolder"
+            @keydown.tab.prevent="selectNextRecommedFolder($event.target.value)" />
         <div v-for="suggestion in suggestions" style="padding: 11px;">
             <span style="color: grey">{{ suggestion }}</span>
         </div>
@@ -16,7 +18,7 @@ import { ClearOutlined, CopyOutlined, DeleteOutlined, FolderOpenOutlined } from 
             <div v-for="name in selectedFolderName">
                 <a-tag color="#55acee">
                     <template #icon>
-                      <FolderOpenOutlined />
+                        <FolderOpenOutlined />
                     </template>
                     {{ name }}
                 </a-tag>
@@ -37,9 +39,14 @@ import { ClearOutlined, CopyOutlined, DeleteOutlined, FolderOpenOutlined } from 
                 </a-popconfirm>
             </template>
         </a-float-button>
+        <a-float-button @click="startScanFolder">
+            <template #icon>
+                <RedoOutlined />
+            </template>
+        </a-float-button>
         <a-float-button @click="clear">
             <template #icon>
-                <ClearOutlined />
+                <FolderOpenOutlined />
             </template>
         </a-float-button>
     </a-float-button-group>
@@ -63,6 +70,7 @@ const os = ref('');
 const suggestions = ref([]);
 const selectedFolder = ref('');
 const selectedFolderName = ref([]);
+const selectedRecommendFolderIndex = ref(0);
 
 echarts.use([TitleComponent, TooltipComponent, TreemapChart, CanvasRenderer]);
 
@@ -78,12 +86,22 @@ export default {
             suggestions,
             selectedFolder,
             selectedFolderName,
+            selectedRecommendFolderIndex
         }
     },
     methods: {
+        selectNextRecommedFolder() {
+            if (suggestions.value.length > 0) {
+                value.value = suggestions.value[selectedRecommendFolderIndex.value];
+                selectedRecommendFolderIndex.value = (selectedRecommendFolderIndex.value + 1) % suggestions.value.length;
+            }
+        },
         async getRecommendFolders() {
+            selectedRecommendFolderIndex.value = 0;
             await invoke('get_recommend_folders', { currentPath: value.value }).then((recommendFolders) => {
-                suggestions.value = recommendFolders.slice(0, 10);
+                suggestions.value = recommendFolders;
+            }).catch((err) => {
+                suggestions.value = [];
             });
         },
         async startScanFolder() {
@@ -96,7 +114,7 @@ export default {
                     if (isScanning) {
                         await this.$options.methods.updateDisk();
                     } else {
-                        await this.$options.methods.updateDisk();
+                        await this.$options.methods.updateDisk(true);
                         clearInterval(interval.value);
                     }
                 });
@@ -283,6 +301,9 @@ export default {
                             itemStyle: {
                                 borderColor: '#fff'
                             },
+                            breadcrumb: {
+                                show: false
+                            },
                             levels: getLevelOption(),
                             data: await invoke('get_folder_info', {}),
                             roam: false,
@@ -306,10 +327,13 @@ export default {
                 selectedFolder.value = selectedFolder.value.substring(0, selectedFolder.value.length - 1);
             });
         },
-        async updateDisk() {
+        async updateDisk(end) {
             let chartDom = echarts.getInstanceByDom(document.getElementById('main'));
             let option = chartDom.getOption();
             option.series[0].data = await invoke('get_folder_info', {});
+            if (end) {
+                option.series[0].breadcrumb.show = true;
+            }
             chartDom.setOption(option);
         },
         async clear() {
@@ -320,7 +344,9 @@ export default {
                     suggestions.value = [];
                     clearInterval(interval.value);
                     let chartDom = echarts.getInstanceByDom(document.getElementById('main'));
-                    chartDom.clear();
+                    if (chartDom) {
+                        chartDom.clear();
+                    }
                     selectedFolder.value = '';
                     selectedFolderName.value = [];
                 }
