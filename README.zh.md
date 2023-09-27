@@ -11,7 +11,7 @@ Disk Visual RS是一个简易的磁盘可视化工具，它使用Rust、Vue、Ta
 
 ### 安装
 
-- 从[Release](https://gitee.com/yang_zi_chun/disk-visual-rs/releases)页面下载最新版本的Disk Visual RS。
+- 从[Release](https://github.com/ZichunYang/disk-visual-rs/releases)页面下载最新版本的Disk Visual RS。
 
 或
 
@@ -38,7 +38,7 @@ Disk Visual RS是一个简易的磁盘可视化工具，它使用Rust、Vue、Ta
 ![Alt text](img.png)
 
 ## 反馈与支持
-如果您遇到任何问题或有任何建议，请在我们的[GitHub Issues](https://gitee.com/yang_zi_chun/disk-visual-rs/issues)页面留言。
+如果您遇到任何问题或有任何建议，请在我们的[GitHub Issues](https://github.com/ZichunYang/disk-visual-rs/issues)页面留言。
 
 ## 许可
 本项目根据MIT许可证进行许可。
